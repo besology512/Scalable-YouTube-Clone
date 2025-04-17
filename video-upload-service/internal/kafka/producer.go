@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"video-upload-service/internal/config"
@@ -24,7 +25,7 @@ func ProduceMessage(message string) error {
 	writer := NewProducer()
 
 	err := writer.WriteMessages(
-		nil, // context
+		context.Background(),
 		kafka.Message{
 			Key:   []byte("video-upload"),
 			Value: []byte(message),
