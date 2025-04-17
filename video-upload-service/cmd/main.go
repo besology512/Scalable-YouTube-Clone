@@ -1,25 +1,22 @@
 package main
 
 import (
-    "github.com/gin-gonic/gin"
-    "your-project/internal/handler"
-    "your-project/internal/storage"
-    "your-project/internal/db"
-    "your-project/internal/kafka"
+	"fmt"
+	"github.com/gorilla/mux"
+	"log"
+	"net/http"
+	"video-upload-service/internal/handler"
 )
 
 func main() {
-    minioClient, _ := storage.NewMinioClient("http://localhost:9000", "minio", "minio123", "videos")
-    mongoRepo := db.NewMongoRepo("mongodb://localhost:27017", "video_db")
-    kafkaProducer := kafka.NewProducer("localhost:9092")
+	// Initialize router
+	router := mux.NewRouter()
 
-    h := handler.UploadHandler{
-        Storage: minioClient,
-        DB:      mongoRepo,
-        Kafka:   kafkaProducer,
-    }
+	// Set up the routes
+	router.HandleFunc("/upload", handler.UploadVideoHandler).Methods("POST")
 
-    r := gin.Default()
-    r.POST("/upload", h.Upload)
-    r.Run(":8080")
+	// Start server
+	port := "8080"
+	fmt.Printf("Server started on http://localhost:%s\n", port)
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }

@@ -1,52 +1,39 @@
 package storage
 
 import (
-    "context"
-    "fmt"
-    "mime/multipart"
-
-    "github.com/aws/aws-sdk-go-v2/aws"
-    "github.com/aws/aws-sdk-go-v2/config"
-    "github.com/aws/aws-sdk-go-v2/service/s3"
+	"context"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+	"io"
+	"log"
+	"video-upload-service/internal/config"
 )
 
-type MinioClient struct {
-    client     *s3.Client
-    bucketName string
-}
+func UploadToMinIO(file io.Reader) (string, error) {
+	conf := config.Load()
 
-func NewMinioClient(endpoint, accessKey, secretKey, bucket string) (*MinioClient, error) {
-    cfg, err := config.LoadDefaultConfig(context.TODO(),
-        config.WithRegion("us-east-1"),
-        config.WithCredentialsProvider(aws.CredentialsProviderFunc(func(context.Context) (aws.Credentials, error) {
-            return aws.Credentials{
-                AccessKeyID:     accessKey,
-                SecretAccessKey: secretKey,
-                Source:          "minio",
-            }, nil
-        })),
-        config.WithEndpointResolver(aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
-            return aws.Endpoint{URL: endpoint, HostnameImmutable: true}, nil
-        })),
-    )
-    if err != nil {
-        return nil, err
-    }
+	// Initialize MinIO client
+	minioClient, err := minio.New(conf.MinioEndpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(conf.MinioAccessKey, conf.MinioSecretKey, ""),
+		Secure: false, // If you're using http (not https), set this to false
+	})
+	if err != nil {
+		log.Printf("Failed to initialize MinIO client: %v", err)
+		return "", err
+	}
 
-    return &MinioClient{
-        client:     s3.NewFromConfig(cfg),
-        bucketName: bucket,
-    }, nil
-}
+	// Upload the file to MinIO
+	objectName := "uploaded_video.mp4" // Can be dynamic based on input
+	bucketName := conf.MinioBucket
+	contentType := "video/mp4" // Set content type based on video format
 
-func (m *MinioClient) UploadFile(ctx context.Context, file multipart.File, fileName string) (string, error) {
-    _, err := m.client.PutObject(ctx, &s3.PutObjectInput{
-        Bucket: aws.String(m.bucketName),
-        Key:    aws.String(fileName),
-        Body:   file,
-    })
-    if err != nil {
-        return "", err
-    }
-    return fmt.Sprintf("%s/%s", m.bucketName, fileName), nil
+	_, err = minioClient.PutObject(context.Background(), bucketName, objectName, file, -1, minio.PutObjectOptions{ContentType: contentType})
+	if err != nil {
+		log.Printf("Failed to upload video to MinIO: %v", err)
+		return "", err
+	}
+
+	// Return the URL or path of the uploaded video
+	videoURL := "http://" + conf.MinioEndpoint + "/" + bucketName + "/" + objectName
+	return videoURL, nil
 }
