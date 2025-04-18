@@ -54,3 +54,6 @@ func (request *AuthHandler) Login(GinContext *gin.Context) {
 func (request *AuthHandler) Refresh(GinContext *gin.Context) {
 	request.Proxy(GinContext)
 }
+func (request *AuthHandler) Health(GinContext *gin.Context) {
+	request.Proxy(GinContext)
+}

@@ -47,3 +47,6 @@ func (request *AuthClient) Login(GinContext *gin.Context) {
 func (request *AuthClient) Refresh(GinContext *gin.Context) {
 	request.ForwardAuth(GinContext)
 }
+func (request *AuthClient) Health(GinContext *gin.Context) {
+	request.ForwardAuth(GinContext)
+}

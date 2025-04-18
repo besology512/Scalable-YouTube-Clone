@@ -10,9 +10,10 @@ func SetRoutes(program *gin.Engine, authclient *clients.AuthClient, fnClient *cl
 
 	public := program.Group("/auth")
 	{
-		public.POST("/register", authclient.LogOut)
-		public.POST("/login", authclient.Login)
+		public.GET("/login", authclient.Login)
 		public.POST("/refresh", authclient.Refresh)
+		public.POST("/logout", authclient.LogOut)
+		public.GET("/health", authclient.Health)
 	}
 
 	protected := program.Group("/")
