@@ -49,14 +49,28 @@ func (request *AuthHandler) Proxy(GinContext *gin.Context) {
 }
 
 func (request *AuthHandler) LogOut(GinContext *gin.Context) {
+
+	//refresh token from cookie and put in body
+	// access token in header (use middleware)
+	//delete cookie from user (httpOnly)
 	request.Proxy(GinContext)
 }
 func (request *AuthHandler) Login(GinContext *gin.Context) {
+	//does nothing but redirect to callback
 	request.Proxy(GinContext)
 }
 func (request *AuthHandler) Refresh(GinContext *gin.Context) {
+	//extract refresh token from cookie
+	//send in body
 	request.Proxy(GinContext)
 }
 func (request *AuthHandler) Health(GinContext *gin.Context) {
+	request.Proxy(GinContext)
+}
+func (request *AuthHandler) Callback(GinContext *gin.Context) {
+	//redirect refresh and access token
+	//access in json body
+	//refresh in cookie
+
 	request.Proxy(GinContext)
 }
