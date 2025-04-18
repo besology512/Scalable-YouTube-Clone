@@ -32,7 +32,7 @@ func Load() *Config {
 
 	keyPath := os.Getenv("AUTH_PUBLIC_KEY_PATH")
 	if keyPath == "" {
-		keyPath = "/keys/app.rsa.pub"
+		keyPath = "../../internal/gateway/keys/app.rsa.pub"
 	}
 
 	microURL := os.Getenv("MICRO_SERVICE_URL")
