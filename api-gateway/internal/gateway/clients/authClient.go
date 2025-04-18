@@ -38,7 +38,7 @@ func (request *AuthClient) ForwardAuth(GinContext *gin.Context) {
 	}
 }
 
-func (request *AuthClient) Register(GinContext *gin.Context) {
+func (request *AuthClient) LogOut(GinContext *gin.Context) {
 	request.ForwardAuth(GinContext)
 }
 func (request *AuthClient) Login(GinContext *gin.Context) {
