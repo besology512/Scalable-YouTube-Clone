@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 
@@ -20,6 +21,8 @@ func (request *AuthHandler) Proxy(GinContext *gin.Context) {
 
 	target := request.client.GetBaseURL() + GinContext.Request.URL.Path
 	req, err := http.NewRequestWithContext(GinContext.Request.Context(), GinContext.Request.Method, target, GinContext.Request.Body)
+
+	fmt.Println(target)
 
 	if err != nil {
 		GinContext.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create request"})

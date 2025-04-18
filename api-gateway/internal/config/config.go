@@ -27,7 +27,7 @@ func Load() *Config {
 
 	authURL := os.Getenv("AUTH_SERVICE_URL")
 	if authURL == "" {
-		authURL = "localhost:8080"
+		authURL = "http://localhost:8080"
 	}
 
 	keyPath := os.Getenv("AUTH_PUBLIC_KEY_PATH")

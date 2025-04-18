@@ -1,6 +1,8 @@
 package clients
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,6 +21,9 @@ func (a *AuthClient) GetBaseURL() string {
 }
 func (request *AuthClient) ForwardAuth(GinContext *gin.Context) {
 	target := request.baseURL + GinContext.Request.URL.Path
+
+	fmt.Println(target)
+
 	req, _ := http.NewRequestWithContext(GinContext.Request.Context(), GinContext.Request.Method, target, GinContext.Request.Body)
 
 	for k, v := range GinContext.Request.Header {
@@ -36,6 +41,12 @@ func (request *AuthClient) ForwardAuth(GinContext *gin.Context) {
 	for k, vv := range resp.Header {
 		GinContext.Writer.Header()[k] = vv
 	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		GinContext.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response body"})
+		return
+	}
+	GinContext.Writer.Write(body)
 }
 
 func (request *AuthClient) LogOut(GinContext *gin.Context) {
