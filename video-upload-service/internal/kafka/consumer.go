@@ -20,7 +20,7 @@ func NewConsumer() (sarama.ConsumerGroup, error) {
 
 	// Create a new Sarama configuration
 	saramaConfig := sarama.NewConfig()
-	saramaConfig.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
+	saramaConfig.Consumer.Group.Rebalance.Strategy = sarama.NewBalanceStrategyRoundRobin()
 	saramaConfig.Consumer.Offsets.Initial = sarama.OffsetNewest
 
 	// Create a new consumer group
@@ -64,6 +64,11 @@ func (handler *ConsumerHandler) ConsumeClaim(session sarama.ConsumerGroupSession
 
 		// Log the success
 		fmt.Printf("Successfully processed and saved video metadata: %s\n", videoMetadata.VideoURL)
+		err = NotifyTranscodingService(videoMetadata)
+		if err != nil {
+			log.Printf("Failed to notify transcoding service: %v", err)
+			continue
+		}
 	}
 	return nil
 }
@@ -106,4 +111,51 @@ func ConsumeMessages() {
 			return
 		}
 	}
+}
+func NotifyTranscodingService(videoMetadata model.VideoMetadata) error {
+	conf := config.Load()
+
+	// Create the message payload
+	messagePayload := map[string]string{
+		"video_url": videoMetadata.VideoURL,
+	}
+	messageBytes, err := json.Marshal(messagePayload)
+	if err != nil {
+		return fmt.Errorf("failed to marshal message payload: %w", err)
+	}
+
+	// Produce the message to the Kafka transcode topic
+	err = ProduceMessageToTopic(conf.KafkaTranscodeTopic, string(messageBytes))
+	if err != nil {
+		return fmt.Errorf("failed to produce message to Kafka: %w", err)
+	}
+
+	fmt.Printf("Successfully notified transcoding service for video: %s\n", videoMetadata.VideoURL)
+	return nil
+}
+
+func ProduceMessageToTopic(topic, message string) error {
+	producer, err := NewProducer()
+	if err != nil {
+		log.Printf("Failed to create producer: %v", err)
+		return err
+	}
+	defer producer.Close()
+
+	// Create a new Kafka message
+	msg := &sarama.ProducerMessage{
+		Topic: topic,
+		Key:   sarama.StringEncoder("video-transcode"),
+		Value: sarama.StringEncoder(message),
+	}
+
+	// Send the message
+	partition, offset, err := producer.SendMessage(msg)
+	if err != nil {
+		log.Printf("Failed to send message: %v", err)
+		return err
+	}
+
+	fmt.Printf("Message produced successfully to Kafka topic %s (partition: %d, offset: %d): %s\n", topic, partition, offset, message)
+	return nil
 }
