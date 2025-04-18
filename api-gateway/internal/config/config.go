@@ -27,17 +27,17 @@ func Load() *Config {
 
 	authURL := os.Getenv("AUTH_SERVICE_URL")
 	if authURL == "" {
-		authURL = "http://auth:8080"
+		authURL = "localhost:8080"
 	}
 
 	keyPath := os.Getenv("AUTH_PUBLIC_KEY_PATH")
 	if keyPath == "" {
-		keyPath = "/auth-service/keys/app.rsa.pub"
+		keyPath = "/keys/app.rsa.pub"
 	}
 
 	microURL := os.Getenv("MICRO_SERVICE_URL")
 	if microURL == "" {
-		microURL = "http://functionservice:8082"
+		microURL = "localhost:8082"
 	}
 
 	redisAddr := os.Getenv("REDIS_ADDR")
