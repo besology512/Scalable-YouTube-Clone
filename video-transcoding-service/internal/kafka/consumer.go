@@ -1,57 +1,79 @@
 package kafka
 
 import (
-	"github.com/segmentio/kafka-go"
+	"context"
+	"encoding/json"
 	"log"
-	"video-transcoding-service/internal/config"
-	"video-transcoding-service/internal/minio"
+
+	"video-transcoding-service/internal/types"
+
+	"github.com/IBM/sarama"
 )
 
 type Consumer struct {
-	Broker  string
-	GroupID string
+	consumerGroup sarama.ConsumerGroup
+	messageChan   chan *types.VideoMessage
 }
 
-func NewConsumer(cfg config.KafkaConfig) *Consumer {
+func NewConsumer(brokers []string) (*Consumer, error) {
+	config := sarama.NewConfig()
+	config.Consumer.Group.Rebalance.Strategy = sarama.NewBalanceStrategyRoundRobin()
+	config.Consumer.Offsets.Initial = sarama.OffsetNewest
+
+	consumerGroup, err := sarama.NewConsumerGroup(brokers, "transcode-group", config)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Consumer{
-		Broker:  cfg.Brokers,
-		GroupID: cfg.GroupID,
-	}
+		consumerGroup: consumerGroup,
+		messageChan:   make(chan *types.VideoMessage),
+	}, nil
 }
 
-func (c *Consumer) Start(minioClient *minio.Client, transcodeFunc func(string, string) error) {
-	// Create Kafka reader
-	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{c.Broker},
-		GroupID: c.GroupID,
-		Topic:   "video-uploaded",
-	})
+func (c *Consumer) Consume(ctx context.Context, topics []string) error {
+	handler := &ConsumerGroupHandler{consumer: c}
 
-	for {
-		msg, err := reader.ReadMessage(nil)
-		if err != nil {
-			log.Println("Error reading message: ", err)
+	go func() {
+		for err := range c.consumerGroup.Errors() {
+			log.Printf("Kafka consumer error: %v", err)
+		}
+	}()
+
+	return c.consumerGroup.Consume(ctx, topics, handler)
+}
+
+func (c *Consumer) Messages() <-chan *types.VideoMessage {
+	return c.messageChan
+}
+
+func (c *Consumer) Close() error {
+	return c.consumerGroup.Close()
+}
+
+type ConsumerGroupHandler struct {
+	consumer *Consumer
+}
+
+func (h *ConsumerGroupHandler) Setup(sarama.ConsumerGroupSession) error {
+	return nil
+}
+
+func (h *ConsumerGroupHandler) Cleanup(sarama.ConsumerGroupSession) error {
+	return nil
+}
+
+func (h *ConsumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
+	for message := range claim.Messages() {
+		var videoMsg types.VideoMessage
+		if err := json.Unmarshal(message.Value, &videoMsg); err != nil {
+			log.Printf("Failed to unmarshal message: %v", err)
 			continue
 		}
 
-		// Process video
-		videoFile := string(msg.Value)
-		transcodedFile := "/tmp/transcoded_" + videoFile
-
-		err = transcodeFunc(videoFile, transcodedFile)
-		if err != nil {
-			log.Println("Error transcoding video: ", err)
-			continue
-		}
-
-		// Upload transcoded file to MinIO
-		err = minioClient.UploadFile(transcodedFile)
-		if err != nil {
-			log.Println("Error uploading to MinIO: ", err)
-			continue
-		}
-
-		// Produce completion message to Kafka
-		// ...
+		log.Printf("Received valid video message: %s", videoMsg.VideoURL)
+		h.consumer.messageChan <- &videoMsg
+		session.MarkMessage(message, "")
 	}
+	return nil
 }

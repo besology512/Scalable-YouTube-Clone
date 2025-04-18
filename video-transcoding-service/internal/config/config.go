@@ -1,38 +1,53 @@
 package config
 
-import (
-	"fmt"
-	"github.com/spf13/viper"
-)
-
 type Config struct {
-	Kafka KafkaConfig
-	Minio MinioConfig
+	MinioEndpoint              string
+	MinioAccessKey             string
+	MinioSecretKey             string
+	MinioRawVideosBucket       string
+	MinioProcessedVideosBucket string
+	MinioThumbnailsBucket      string
+	MinioTmpGOPBucket          string
+	MinioTmpGOPEncodedBucket   string
+	KafkaBrokers               []string
+	KafkaTopic                 string
+	KafkaTranscodeTopic        string
+	KafkaChunkTopic            string
+	KafkaEncodeTopic           string
+	KafkaMergeTopic            string
+	KafkaUploadTranscodedTopic string
+	KafkaTranscodeGroup        string
+	KafkaChunkGroup            string
+	KafkaEncodeGroup           string
+	KafkaMergeGroup            string
+	KafkaUploadTranscodedGroup string
+	ServerPort                 string
+	MongoURI                   string
 }
 
-type KafkaConfig struct {
-	Brokers string
-	GroupID string
-}
-
-type MinioConfig struct {
-	Endpoint  string
-	AccessKey string
-	SecretKey string
-	Bucket    string
-}
-
-func LoadConfig() (*Config, error) {
-	viper.SetConfigName("config")
-	viper.AddConfigPath("./config")
-
-	if err := viper.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("Error reading config file, %s", err)
+func Load() *Config {
+	return &Config{
+		MinioEndpoint:              "localhost:9000",
+		MinioAccessKey:             "minioadmin",
+		MinioSecretKey:             "minioadmin",
+		MinioRawVideosBucket:       "raw-videos",
+		MinioProcessedVideosBucket: "processed-videos",
+		MinioThumbnailsBucket:      "thumbnails",
+		MinioTmpGOPBucket:          "tmp-GOP",
+		MinioTmpGOPEncodedBucket:   "tmp-GOP-encoded",
+		KafkaBrokers:               []string{"localhost:9092"},
+		KafkaTopic:                 "video.uploaded",
+		KafkaTranscodeTopic:        "video.transcode",
+		KafkaChunkTopic:            "video.chunk",
+		KafkaEncodeTopic:           "video.encode",
+		KafkaMergeTopic:            "video.merge",
+		KafkaUploadTranscodedTopic: "video.upload_transcoded",
+		KafkaTranscodeGroup:        "transcode-group",
+		KafkaChunkGroup:            "chunk-group",
+		KafkaEncodeGroup:           "encode-group",
+		KafkaMergeGroup:            "merge-group",
+		KafkaUploadTranscodedGroup: "upload-transcoded-group",
+		ServerPort:                 "8080",
+		MongoURI:                   "mongodb://localhost:27017",
 	}
-
-	var config Config
-	if err := viper.Unmarshal(&config); err != nil {
-		return nil, fmt.Errorf("unable to decode into struct, %v", err)
-	}
-	return &config, nil
 }
