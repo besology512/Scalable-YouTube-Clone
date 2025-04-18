@@ -10,7 +10,7 @@ type AuthClient struct {
 	baseURL string
 }
 
-func SetAuthClient(baseURL string) *AuthClient {
+func NewAuthClient(baseURL string) *AuthClient {
 	return &AuthClient{baseURL: baseURL}
 }
 
