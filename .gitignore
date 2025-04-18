@@ -24,3 +24,5 @@ go.work.sum
 # env file
 .env
 .vscode/
+auth-service/keys/app.rsa
+auth-service/data/auth.db
