@@ -2,16 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"video-upload-service/internal/handler"
+	"video-upload-service/internal/kafka"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
 	// Initialize router
 	router := mux.NewRouter()
 
+	// start kafka consumer
+	go kafka.ConsumeMessages()
 	// Set up the routes
 	router.HandleFunc("/upload", handler.UploadVideoHandler).Methods("POST")
 

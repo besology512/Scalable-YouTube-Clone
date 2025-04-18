@@ -1,42 +1,55 @@
 package kafka
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"video-upload-service/internal/config"
 
-	"github.com/segmentio/kafka-go"
+	"github.com/IBM/sarama"
 )
 
-func NewProducer() *kafka.Writer {
+func NewProducer() (sarama.SyncProducer, error) {
 	conf := config.Load()
 
-	writer := &kafka.Writer{
-		Addr:     kafka.TCP(conf.KafkaBrokers),
-		Topic:    conf.KafkaTopic,
-		Balancer: &kafka.LeastBytes{},
+	// Create a new Sarama configuration
+	saramaConfig := sarama.NewConfig()
+	saramaConfig.Producer.RequiredAcks = sarama.WaitForAll
+	saramaConfig.Producer.Retry.Max = 5
+	saramaConfig.Producer.Return.Successes = true
+
+	// Create a new Sarama producer
+	producer, err := sarama.NewSyncProducer([]string{conf.KafkaBrokers}, saramaConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create Kafka producer: %w", err)
 	}
 
-	return writer
+	return producer, nil
 }
 
 func ProduceMessage(message string) error {
-	writer := NewProducer()
-
-	err := writer.WriteMessages(
-		context.Background(),
-		kafka.Message{
-			Key:   []byte("video-upload"),
-			Value: []byte(message),
-		},
-	)
-
+	producer, err := NewProducer()
 	if err != nil {
-		log.Printf("Failed to write messages: %v", err)
+		log.Printf("Failed to create producer: %v", err)
+		return err
+	}
+	defer producer.Close()
+
+	conf := config.Load()
+
+	// Create a new Kafka message
+	msg := &sarama.ProducerMessage{
+		Topic: conf.KafkaTopic,
+		Key:   sarama.StringEncoder("video-upload"),
+		Value: sarama.StringEncoder(message),
+	}
+
+	// Send the message
+	partition, offset, err := producer.SendMessage(msg)
+	if err != nil {
+		log.Printf("Failed to send message: %v", err)
 		return err
 	}
 
-	fmt.Println("Message produced successfully to Kafka topic:", message)
+	fmt.Printf("Message produced successfully to Kafka topic %s (partition: %d, offset: %d): %s\n", conf.KafkaTopic, partition, offset, message)
 	return nil
 }

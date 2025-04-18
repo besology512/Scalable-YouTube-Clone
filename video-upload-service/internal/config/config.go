@@ -8,6 +8,7 @@ type Config struct {
 	KafkaBrokers   string
 	KafkaTopic     string
 	ServerPort     string
+	MongoURI       string
 }
 
 func Load() *Config {
@@ -19,5 +20,6 @@ func Load() *Config {
 		KafkaBrokers:   "localhost:9092",
 		KafkaTopic:     "video.uploaded",
 		ServerPort:     "8080",
+		MongoURI:       "mongodb://localhost:27017",
 	}
 }
