@@ -15,6 +15,8 @@ type Config struct {
 	MaxRequests       int
 	ConcurrencyLimit  int
 	RateLimitTTL      time.Duration
+	AuthPublicKeyPath string
+	RedisPassword     string
 }
 
 func Load() *Config {
@@ -26,6 +28,11 @@ func Load() *Config {
 	authURL := os.Getenv("AUTH_SERVICE_URL")
 	if authURL == "" {
 		authURL = "http://auth:8080"
+	}
+
+	keyPath := os.Getenv("AUTH_PUBLIC_KEY_PATH")
+	if keyPath == "" {
+		keyPath = "/auth-service/keys/app.rsa.pub"
 	}
 
 	microURL := os.Getenv("MICRO_SERVICE_URL")
@@ -74,11 +81,13 @@ func Load() *Config {
 	return &Config{
 		Port:              port,
 		AuthServiceUrl:    authURL,
+		AuthPublicKeyPath: keyPath,
 		MicroServiceUrl:   microURL,
 		RedisServerAdress: redisAddr,
 		RedisDBindex:      redisindex,
 		MaxRequests:       maxrequests,
 		RateLimitTTL:      rateTTL,
 		ConcurrencyLimit:  concur,
+		RedisPassword:     os.Getenv("REDIS_PASSWORD"),
 	}
 }
