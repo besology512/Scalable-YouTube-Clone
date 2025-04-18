@@ -9,7 +9,7 @@ import (
 )
 
 type FunctionHandler struct {
-	client *clients.FunctionClient // holds base URL and HTTP client
+	client *clients.FunctionClient
 }
 
 func NewFunctionHandler(c *clients.FunctionClient) *FunctionHandler {
