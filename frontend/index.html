@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MP4 Stream Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    label, button {
+      font-size: 1rem;
+    }
+    #player {
+      display: block;
+      margin-top: 1rem;
+      width: 100%;
+      max-width: 800px;
+      height: auto;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Stream a Video from MinIO</h1>
+
+  <div>
+    <label for="videoName">Filename:</label>
+    <input id="videoName" placeholder="e.g. video123.mp4" style="font-size:1rem; padding:0.25rem;" />
+    <button id="play" style="font-size:1rem; padding:0.25rem 0.5rem;">▶ Play</button>
+  </div>
+
+  <video
+    id="player"
+    controls
+    preload="metadata"
+    crossorigin="anonymous">
+    Your browser does not support HTML5 video.
+  </video>
+
+  <script>
+    const playBtn = document.getElementById('play');
+    const input  = document.getElementById('videoName');
+    const video  = document.getElementById('player');
+
+    playBtn.addEventListener('click', () => {
+      const name = input.value.trim();
+      if (!name) {
+        return alert('Please enter a video filename (e.g. video123.mp4)');
+      }
+
+      // adjust origin/port if your streaming service is elsewhere
+      const url = `http://localhost:8083/stream/${encodeURIComponent(name)}`;
+
+      video.src = url;
+      video.load();
+      video.play().catch(err => {
+        console.error('Playback error:', err);
+        alert('Error playing video. Check console for details.');
+      });
+    });
+  </script>
+</body>
+</html>
