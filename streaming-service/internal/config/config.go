@@ -17,13 +17,13 @@ type Config struct {
 
 func Load() *Config {
 
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		log.Println("No .env file found — using system environment variables.")
 	}
 
 	endpoint := os.Getenv("MINIO_ENDPOINT")
 	if endpoint == "" {
-		endpoint = "localhost:9000"
+		endpoint = "localhost:9001"
 	}
 
 	accessKey := os.Getenv("MINIO_ACCESS_KEY")
@@ -38,7 +38,7 @@ func Load() *Config {
 
 	bucket := os.Getenv("MINIO_BUCKET")
 	if bucket == "" {
-		bucket = "prossessed-videos"
+		bucket = "prosessed-videos"
 	}
 
 	port := os.Getenv("PORT")
