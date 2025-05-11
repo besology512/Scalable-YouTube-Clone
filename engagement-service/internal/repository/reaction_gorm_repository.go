@@ -23,7 +23,6 @@ func (r *GormReactionRepository) ToggleReaction(videoID, userID, reactionType st
 	err := r.db.Where("video_id = ? AND user_id = ?", videoID, userID).First(&reaction).Error
 
 	if err == gorm.ErrRecordNotFound {
-		// ما فيش تفاعل سابق → نضيف جديد
 		return r.db.Create(&models.Reaction{
 			VideoID: videoID,
 			UserID:  userID,
@@ -33,13 +32,11 @@ func (r *GormReactionRepository) ToggleReaction(videoID, userID, reactionType st
 		return err
 	}
 
-	// التفاعل موجود فعلاً:
 	if reaction.Type == reactionType {
-		// نفس التفاعل → نعمل "إلغاء"
+
 		return r.db.Delete(&reaction).Error
 	}
 
-	// تغيير نوع التفاعل
 	return r.db.Model(&reaction).Update("type", reactionType).Error
 }
 
