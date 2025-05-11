@@ -21,6 +21,15 @@ func (r *GormCommentRepository) Create(comment *models.Comment) error {
 	return r.db.Create(comment).Error
 }
 
+func (r *GormCommentRepository) GetByID(commentID string) (*models.Comment, error) {
+	var comment models.Comment
+	err := r.db.First(&comment, "id = ?", commentID).Error
+	if err != nil {
+		return nil, err
+	}
+	return &comment, nil
+}
+
 func (r *GormCommentRepository) GetByVideoID(videoID string) ([]models.Comment, error) {
 	var comments []models.Comment
 	err := r.db.Where("video_id = ?", videoID).Find(&comments).Error

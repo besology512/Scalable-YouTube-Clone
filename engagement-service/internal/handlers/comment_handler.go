@@ -54,16 +54,21 @@ func (h *CommentHandler) GetComments(c *gin.Context) {
 
 func (h *CommentHandler) UpdateComment(c *gin.Context) {
 	commentID := c.Param("commentId")
+	userID := c.GetHeader("X-User-ID")
 
 	var req UpdateRequest
-	if c.BindJSON(&req) != nil || req.Content == "" {
+	if userID == "" || c.BindJSON(&req) != nil || req.Content == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid content"})
 		return
 	}
 
-	err := h.service.UpdateComment(commentID, req.Content)
+	err := h.service.UpdateComment(userID, commentID, req.Content)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if err.Error() == "unauthorized" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Comment updated"})
@@ -71,10 +76,20 @@ func (h *CommentHandler) UpdateComment(c *gin.Context) {
 
 func (h *CommentHandler) DeleteComment(c *gin.Context) {
 	commentID := c.Param("commentId")
+	userID := c.GetHeader("X-User-ID")
 
-	err := h.service.DeleteComment(commentID)
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing user ID"})
+		return
+	}
+
+	err := h.service.DeleteComment(userID, commentID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if err.Error() == "unauthorized" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Comment deleted"})

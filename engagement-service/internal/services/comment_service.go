@@ -3,6 +3,7 @@ package services
 import (
 	"engagement-service/internal/models"
 	"engagement-service/internal/repository"
+	"errors"
 )
 
 type CommentService struct {
@@ -27,10 +28,24 @@ func (s *CommentService) GetComments(videoID string) ([]models.Comment, error) {
 	return s.repo.GetByVideoID(videoID)
 }
 
-func (s *CommentService) UpdateComment(commentID, newContent string) error {
+func (s *CommentService) UpdateComment(userID, commentID, newContent string) error {
+	comment, err := s.repo.GetByID(commentID)
+	if err != nil {
+		return err
+	}
+	if comment.UserID != userID {
+		return errors.New("unauthorized")
+	}
 	return s.repo.UpdateContent(commentID, newContent)
 }
 
-func (s *CommentService) DeleteComment(commentID string) error {
+func (s *CommentService) DeleteComment(userID, commentID string) error {
+	comment, err := s.repo.GetByID(commentID)
+	if err != nil {
+		return err
+	}
+	if comment.UserID != userID {
+		return errors.New("unauthorized")
+	}
 	return s.repo.Delete(commentID)
 }
