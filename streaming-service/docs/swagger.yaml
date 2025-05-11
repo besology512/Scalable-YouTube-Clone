@@ -3,7 +3,36 @@ info:
   description: Graduation project - Video Streaming Platform with Microservices Architecture
   title: Scalable YouTube Clone API
   version: "1.0"
-paths: {}
+paths:
+  /videos/{id}/exists:
+    get:
+      description: Check if a video exists in MinIO by ID
+      parameters:
+      - description: Video ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Missing video ID
+          schema:
+            type: string
+        "404":
+          description: Video not found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Check video existence
+      tags:
+      - Streaming
 securityDefinitions:
   BearerAuth:
     description: JWT token for authentication
