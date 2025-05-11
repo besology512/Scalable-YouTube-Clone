@@ -4,6 +4,39 @@ info:
   title: Scalable YouTube Clone API
   version: "1.0"
 paths:
+  /stream/{name}:
+    get:
+      description: Streams a video file from MinIO by name
+      parameters:
+      - description: Video file name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - video/mp4
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Missing video name
+          schema:
+            type: string
+        "404":
+          description: Video not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Stream video
+      tags:
+      - Streaming
   /videos/{id}/exists:
     get:
       description: Check if a video exists in MinIO by ID

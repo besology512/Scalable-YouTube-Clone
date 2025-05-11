@@ -19,8 +19,8 @@ import (
 // @Failure 400 {string} string "Missing video name"
 // @Failure 404 {string} string "Video not found"
 // @Failure 500 {string} string "Internal server error"
+// @Security BearerAuth
 // @Router /stream/{name} [get]
-
 func StreamHandler(minioClient *minio.Client, bucket string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
