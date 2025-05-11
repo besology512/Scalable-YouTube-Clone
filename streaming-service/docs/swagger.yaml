@@ -1,0 +1,13 @@
+info:
+  contact: {}
+  description: Graduation project - Video Streaming Platform with Microservices Architecture
+  title: Scalable YouTube Clone API
+  version: "1.0"
+paths: {}
+securityDefinitions:
+  BearerAuth:
+    description: JWT token for authentication
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

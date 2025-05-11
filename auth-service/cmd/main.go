@@ -8,6 +8,7 @@ import (
 	"auth-service/internal/middleware"
 	"auth-service/internal/service"
 
+	_ "auth-service/docs"
 	"database/sql"
 	"log"
 	"net/http"
@@ -17,6 +18,8 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth/gothic"
 	_ "github.com/mattn/go-sqlite3"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -53,7 +56,7 @@ func main() {
 
 	// Start Gin engine
 	r := gin.Default()
-
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	// Routes
 	r.GET("/auth/google/login", authHandler.GoogleLogin)
 	r.GET("/auth/google/callback", authHandler.GoogleCallback)

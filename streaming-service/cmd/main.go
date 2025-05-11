@@ -1,3 +1,11 @@
+// @title Scalable YouTube Clone API
+// @version 1.0
+// @description Graduation project - Video Streaming Platform with Microservices Architecture
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description JWT token for authentication
 package main
 
 import (
@@ -8,6 +16,10 @@ import (
 	"streaming-service/internal/clients"
 	"streaming-service/internal/config"
 	"streaming-service/internal/handlers"
+
+	_ "streaming-service/docs"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/gorilla/mux"
 )
@@ -25,10 +37,8 @@ func main() {
 
 	// 3) Set up router
 	router := mux.NewRouter()
-	// Health check endpoint:
-	// Stream endpoint:
-	// GET /stream/{name}
-	// e.g. /stream/video123.mp4
+
+	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 	router.HandleFunc("/stream/{name}", handlers.StreamHandler(minioClient, cfg.MinioBucket)).Methods("GET")
 	router.HandleFunc("/videos/{id}/exists", handlers.VideoExistsHandler(minioClient, cfg.MinioBucket)).Methods("GET")
 

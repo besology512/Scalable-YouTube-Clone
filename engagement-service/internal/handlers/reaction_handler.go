@@ -15,6 +15,19 @@ func NewReactionHandler(service *services.ReactionService) *ReactionHandler {
 	return &ReactionHandler{service: service}
 }
 
+// @Summary Like a video
+// @Description Toggle like reaction for a video. Creates, deletes or updates like state for a user.
+// @Tags Reactions
+// @Accept json
+// @Produce json
+// @Param id path string true "Video ID"
+// @Param X-User-ID header string true "User ID from Auth"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /videos/{id}/like [post]
+// @Security ApiKeyAuth
+// @Security BearerAuth
 func (h *ReactionHandler) HandleLike(c *gin.Context) {
 	videoID := c.Param("id")
 	userID := c.GetHeader("X-User-ID")
@@ -44,6 +57,20 @@ func (h *ReactionHandler) HandleLike(c *gin.Context) {
 	})
 }
 
+// HandleDislike godoc
+// @Summary Toggle dislike reaction
+// @Description Dislike or remove dislike on a video
+// @Tags Reactions
+// @Accept json
+// @Produce json
+// @Param id path string true "Video ID"
+// @Param X-User-ID header string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /videos/{id}/dislike [post]
+// @Security ApiKeyAuth
+// @Security BearerAuth
 func (h *ReactionHandler) HandleDislike(c *gin.Context) {
 	videoID := c.Param("id")
 	userID := c.GetHeader("X-User-ID")

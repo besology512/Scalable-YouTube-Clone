@@ -14,7 +14,7 @@ type Reaction struct {
 	Type      string `gorm:"not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	DeletedAt gorm.DeletedAt `gorm:"index" swaggerignore:"true"`
 }
 
 func (r *Reaction) BeforeCreate(tx *gorm.DB) (err error) {

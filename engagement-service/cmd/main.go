@@ -1,3 +1,11 @@
+// @title Scalable YouTube Clone API
+// @version 1.0
+// @description Graduation project - Video Streaming Platform with Microservices Architecture
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description JWT token for authentication
 package main
 
 import (
@@ -7,7 +15,11 @@ import (
 	"engagement-service/internal/repository"
 	"engagement-service/internal/services"
 
+	_ "engagement-service/docs"
+
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -18,14 +30,15 @@ func main() {
 	commentRepo := repository.NewGormCommentRepository()
 	reactionRepo := repository.NewGormReactionRepository()
 
-	commentService := services.NewCommentService(commentRepo, "http://localhost:8083")
+	commentService := services.NewCommentService(commentRepo, "http://host.docker.internal:8083")
 
-	reactionService := services.NewReactionService(reactionRepo, "http://localhost:8083")
+	reactionService := services.NewReactionService(reactionRepo, "http://host.docker.internal:8083")
 
 	commentHandler := handlers.NewCommentHandler(commentService)
 	reactionHandler := handlers.NewReactionHandler(reactionService)
 
 	r := gin.Default()
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.POST("/videos/:id/like", reactionHandler.HandleLike)
 	r.POST("/videos/:id/dislike", reactionHandler.HandleDislike)

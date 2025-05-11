@@ -14,7 +14,7 @@ type Comment struct {
 	Content   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	DeletedAt gorm.DeletedAt `gorm:"index" swaggerignore:"true"`
 }
 
 func (c *Comment) BeforeCreate(tx *gorm.DB) (err error) {

@@ -9,6 +9,18 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
+// StreamHandler godoc
+// @Summary Stream video
+// @Description Streams a video file from MinIO by name
+// @Tags Streaming
+// @Produce video/mp4
+// @Param name path string true "Video file name"
+// @Success 200 {file} file
+// @Failure 400 {string} string "Missing video name"
+// @Failure 404 {string} string "Video not found"
+// @Failure 500 {string} string "Internal server error"
+// @Router /stream/{name} [get]
+
 func StreamHandler(minioClient *minio.Client, bucket string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
