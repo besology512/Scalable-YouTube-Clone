@@ -25,11 +25,12 @@ func main() {
 
 	// 3) Set up router
 	router := mux.NewRouter()
-
+	// Health check endpoint:
 	// Stream endpoint:
 	// GET /stream/{name}
 	// e.g. /stream/video123.mp4
 	router.HandleFunc("/stream/{name}", handlers.StreamHandler(minioClient, cfg.MinioBucket)).Methods("GET")
+	router.HandleFunc("/videos/{id}/exists", handlers.VideoExistsHandler(minioClient, cfg.MinioBucket)).Methods("GET")
 
 	// 4) Start HTTP server
 	fmt.Printf("Streaming service running on port %s\n", cfg.ServerPort)
