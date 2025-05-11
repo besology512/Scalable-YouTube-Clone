@@ -1,10 +1,23 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
 
 type Reaction struct {
-	gorm.Model
-	VideoID string `gorm:"index;not null"`
-	UserID  string `gorm:"index;not null"`
-	Type    string `gorm:"not null"` // "like" or "dislike"
+	ID        string `gorm:"type:uuid;primaryKey"`
+	VideoID   string `gorm:"index;not null"`
+	UserID    string `gorm:"index;not null"`
+	Type      string `gorm:"not null"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+
+func (r *Reaction) BeforeCreate(tx *gorm.DB) (err error) {
+	r.ID = uuid.New().String()
+	return
 }

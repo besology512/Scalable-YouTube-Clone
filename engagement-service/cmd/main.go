@@ -13,6 +13,7 @@ import (
 func main() {
 	db.Init()
 	db.DB.AutoMigrate(&models.Comment{}, &models.Reaction{})
+	//db.DB.Migrator().DropTable(&models.Comment{}, &models.Reaction{})
 
 	commentRepo := repository.NewGormCommentRepository()
 	reactionRepo := repository.NewGormReactionRepository()
