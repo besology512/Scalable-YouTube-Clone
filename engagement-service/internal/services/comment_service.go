@@ -4,17 +4,27 @@ import (
 	"engagement-service/internal/models"
 	"engagement-service/internal/repository"
 	"errors"
+	"fmt"
+	"net/http"
 )
 
 type CommentService struct {
-	repo repository.CommentRepository
+	repo                repository.CommentRepository
+	streamingServiceURL string
 }
 
-func NewCommentService(repo repository.CommentRepository) *CommentService {
-	return &CommentService{repo: repo}
+func NewCommentService(repo repository.CommentRepository, streamingServiceURL string) *CommentService {
+	return &CommentService{
+		repo:                repo,
+		streamingServiceURL: streamingServiceURL,
+	}
 }
 
 func (s *CommentService) PostComment(videoID, userID, content string) (*models.Comment, error) {
+	if err := s.checkVideoExists(videoID); err != nil {
+		return nil, err
+	}
+
 	comment := &models.Comment{
 		VideoID: videoID,
 		UserID:  userID,
@@ -48,4 +58,24 @@ func (s *CommentService) DeleteComment(userID, commentID string) error {
 		return errors.New("unauthorized")
 	}
 	return s.repo.Delete(commentID)
+}
+
+func (s *CommentService) checkVideoExists(videoID string) error {
+	url := fmt.Sprintf("%s/videos/%s/exists", s.streamingServiceURL, videoID)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("failed to verify video existence: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return errors.New("video does not exist")
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected response from video service: %d", resp.StatusCode)
+	}
+
+	return nil
 }

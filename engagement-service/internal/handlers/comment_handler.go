@@ -35,7 +35,11 @@ func (h *CommentHandler) PostComment(c *gin.Context) {
 
 	comment, err := h.service.PostComment(videoID, userID, req.Content)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if err.Error() == "video does not exist" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Video does not exist"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 

@@ -18,8 +18,9 @@ func main() {
 	commentRepo := repository.NewGormCommentRepository()
 	reactionRepo := repository.NewGormReactionRepository()
 
-	commentService := services.NewCommentService(commentRepo)
-	reactionService := services.NewReactionService(reactionRepo)
+	commentService := services.NewCommentService(commentRepo, "http://localhost:8083")
+
+	reactionService := services.NewReactionService(reactionRepo, "http://localhost:8083")
 
 	commentHandler := handlers.NewCommentHandler(commentService)
 	reactionHandler := handlers.NewReactionHandler(reactionService)
