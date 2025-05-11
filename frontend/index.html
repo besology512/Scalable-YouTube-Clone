@@ -51,7 +51,6 @@
         return alert('Please enter a video filename (e.g. video123.mp4)');
       }
 
-      // adjust origin/port if your streaming service is elsewhere
       const url = `http://localhost:8083/stream/${encodeURIComponent(name)}`;
 
       video.src = url;
