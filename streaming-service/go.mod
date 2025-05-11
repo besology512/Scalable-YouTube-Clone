@@ -6,6 +6,8 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/joho/godotenv v1.5.1
 	github.com/minio/minio-go/v7 v7.0.90
+	github.com/swaggo/files v1.0.1
+	github.com/swaggo/http-swagger v1.3.4
 )
 
 require (
@@ -29,8 +31,6 @@ require (
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rs/xid v1.6.0 // indirect
-	github.com/swaggo/files v1.0.1
-	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.4 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/net v0.38.0 // indirect
