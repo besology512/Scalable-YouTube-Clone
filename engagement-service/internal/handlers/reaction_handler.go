@@ -25,9 +25,9 @@ func NewReactionHandler(service *services.ReactionService) *ReactionHandler {
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /videos/{id}/like [post]
-// @Security ApiKeyAuth
 // @Security BearerAuth
+// @Router /videos/{id}/like [post]
+
 func (h *ReactionHandler) HandleLike(c *gin.Context) {
 	videoID := c.Param("id")
 	userID := c.GetHeader("X-User-ID")
@@ -68,9 +68,9 @@ func (h *ReactionHandler) HandleLike(c *gin.Context) {
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /videos/{id}/dislike [post]
-// @Security ApiKeyAuth
 // @Security BearerAuth
+// @Router /videos/{id}/dislike [post]
+
 func (h *ReactionHandler) HandleDislike(c *gin.Context) {
 	videoID := c.Param("id")
 	userID := c.GetHeader("X-User-ID")

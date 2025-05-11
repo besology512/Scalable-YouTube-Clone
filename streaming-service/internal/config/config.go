@@ -23,7 +23,7 @@ func Load() *Config {
 
 	endpoint := os.Getenv("MINIO_ENDPOINT")
 	if endpoint == "" {
-		endpoint = "localhost:9001"
+		endpoint = "localhost:9000"
 	}
 
 	accessKey := os.Getenv("MINIO_ACCESS_KEY")

@@ -36,9 +36,9 @@ type UpdateRequest struct {
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /videos/{id}/comments [post]
-// @Security ApiKeyAuth
 // @Security BearerAuth
+// @Router /videos/{id}/comments [post]
+
 func (h *CommentHandler) PostComment(c *gin.Context) {
 	videoID := c.Param("id")
 	userID := c.GetHeader("X-User-ID")
@@ -71,9 +71,9 @@ func (h *CommentHandler) PostComment(c *gin.Context) {
 // @Param id path string true "Video ID"
 // @Success 200 {array} models.Comment
 // @Failure 500 {object} map[string]string
-// @Router /videos/{id}/comments [get]
-// @Security ApiKeyAuth
 // @Security BearerAuth
+// @Router /videos/{id}/comments [get]
+
 func (h *CommentHandler) GetComments(c *gin.Context) {
 	videoID := c.Param("id")
 	comments, err := h.service.GetComments(videoID)
@@ -99,8 +99,7 @@ func (h *CommentHandler) GetComments(c *gin.Context) {
 // @Failure 403 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /videos/{id}/comments/{commentId} [put]
-// @Security ApiKeyAuth
-// @Security BearerAuth
+
 func (h *CommentHandler) UpdateComment(c *gin.Context) {
 	commentID := c.Param("commentId")
 	userID := c.GetHeader("X-User-ID")
@@ -137,8 +136,7 @@ func (h *CommentHandler) UpdateComment(c *gin.Context) {
 // @Failure 403 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /videos/{id}/comments/{commentId} [delete]
-// @Security ApiKeyAuth
-// @Security BearerAuth
+
 func (h *CommentHandler) DeleteComment(c *gin.Context) {
 	commentID := c.Param("commentId")
 	userID := c.GetHeader("X-User-ID")

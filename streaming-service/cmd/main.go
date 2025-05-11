@@ -40,7 +40,7 @@ func main() {
 
 	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 	router.HandleFunc("/stream/{name}", handlers.StreamHandler(minioClient, cfg.MinioBucket)).Methods("GET")
-	router.HandleFunc("/videos/{id}/exists", handlers.VideoExistsHandler(minioClient, cfg.MinioBucket)).Methods("GET")
+	router.HandleFunc("/videos/{id}/exists", handlers.VideoExistsHandler(minioClient, "prosessed-videos"))
 
 	// 4) Start HTTP server
 	fmt.Printf("Streaming service running on port %s\n", cfg.ServerPort)
